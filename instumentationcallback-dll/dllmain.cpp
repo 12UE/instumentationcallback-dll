@@ -33,7 +33,7 @@ extern "C" uintptr_t hook(uintptr_t R10, uintptr_t RAX/* ... */);
 PROCESS_INSTRUMENTATION_CALLBACK_INFORMATION callback = { 0 };
 std::atomic_bool flag = false;
 thread_local std::mutex mtx;
-std::string SymInfoFromAddr(uintptr_t address) {
+static std::string SymInfoFromAddr(uintptr_t address) {
 	uint8_t buffer[sizeof(SYMBOL_INFO) + MAX_SYM_NAME] = { 0 };
 	const auto symbol_info = (PSYMBOL_INFO)buffer;
 	symbol_info->SizeOfStruct = sizeof(SYMBOL_INFO);
