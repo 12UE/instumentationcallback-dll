@@ -45,13 +45,15 @@ static std::string SymInfoFromAddr(uintptr_t address) {
 auto& SymInfoFromAddrCache = nonstd::makecached(SymInfoFromAddr,INFINITE);
 std::unordered_map<uintptr_t, bool> map;//记录函数是否被hook
 uintptr_t hook(uintptr_t R10, uintptr_t RAX/* ... */) {
-	DWORD dwThreadId = GetCurrentThreadId();//不进入内核
-	auto iter = map.find(dwThreadId);
-	bool &flag = iter->second;
+	auto iter = map.find(GetCurrentThreadId());
+	if (iter == map.end()) {
+		map[GetCurrentThreadId()] = false;
+	}
+	auto& flag = map[GetCurrentThreadId()];
 	if (!flag) {
 		flag = true;
-		auto symbol_name = SymInfoFromAddrCache(R10);
-		printf("[+] function: %s\n\treturn value: 0x%llx\n\treturn address: 0x%llx\n", symbol_name.c_str(), RAX, R10);
+		//return value is RAXand return address is R10
+		printf("[+] function: %s\n\t", SymInfoFromAddrCache(R10).c_str());
 		flag = false;
 	}
 	return RAX;
